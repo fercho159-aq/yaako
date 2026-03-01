@@ -1,0 +1,385 @@
+/* ═══════════════════════════════════════════════════════════
+   /start — Dark cinematic game-intro screen
+   Matches the "TRACK & REACT" aesthetic from YAAKOB
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Base ────────────────────────────────────────────── */
+.sp {
+  --bg: #0a1820;
+  --text: #c4dce8;
+  --text-dim: rgba(160, 195, 215, 0.5);
+  --accent: rgba(180, 220, 240, 0.12);
+  --glow: rgba(180, 220, 240, 0.06);
+
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  overflow: hidden;
+  font-family: 'TTMussels', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Three.js canvas ─────────────────────────────────── */
+.sp-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* ─── Vignette ────────────────────────────────────────── */
+.sp-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 80% 70% at 50% 45%,
+    transparent 0%,
+    rgba(6, 14, 20, 0.2) 60%,
+    rgba(4, 10, 16, 0.55) 100%
+  );
+}
+
+/* ─── Corner hex accents ──────────────────────────────── */
+.sp-hex {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.6;
+}
+.sp-hex--tl {
+  top: -10px;
+  left: -10px;
+  width: 160px;
+  height: 160px;
+}
+.sp-hex--br {
+  bottom: -20px;
+  right: -20px;
+  width: 200px;
+  height: 200px;
+}
+
+/* ─── Content wrapper ─────────────────────────────────── */
+.sp-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+}
+
+/* Phase transitions */
+.sp-phase-0 .sp-title,
+.sp-phase-0 .sp-sub,
+.sp-phase-0 .sp-buttons {
+  opacity: 0;
+}
+
+/* ─── Title — glitched holographic type ───────────────── */
+.sp-title {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin: 0 0 28px 0;
+}
+
+.sp-title__line {
+  display: block;
+  font-size: clamp(54px, 11vw, 130px);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  text-transform: uppercase;
+  position: relative;
+}
+
+/* Ghost / echo layers behind text */
+.sp-title__line::before,
+.sp-title__line::after {
+  content: attr(data-text, "");
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Because attr() fallback doesn't work everywhere, use CSS trick */
+.sp-title__line:nth-child(1)::before { content: "COMIENZA"; }
+.sp-title__line:nth-child(1)::after { content: "COMIENZA"; }
+.sp-title__line:nth-child(2)::before { content: "AHORA"; }
+.sp-title__line:nth-child(2)::after { content: "AHORA"; }
+
+.sp-title__line::before {
+  color: transparent;
+  -webkit-text-stroke: 0.5px rgba(140, 190, 210, 0.15);
+  transform: translate(-3px, 2px);
+  z-index: -1;
+}
+
+.sp-title__line::after {
+  color: transparent;
+  -webkit-text-stroke: 0.5px rgba(140, 190, 210, 0.1);
+  transform: translate(3px, -2px) scaleX(1.003);
+  z-index: -1;
+}
+
+/* Horizontal glitch lines through title */
+.sp-title::before {
+  content: "";
+  position: absolute;
+  top: 38%;
+  left: -15%;
+  right: -15%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(140, 190, 210, 0.2) 20%,
+    rgba(180, 220, 240, 0.35) 50%,
+    rgba(140, 190, 210, 0.2) 80%,
+    transparent 100%
+  );
+  z-index: 5;
+}
+
+.sp-title::after {
+  content: "";
+  position: absolute;
+  top: 62%;
+  left: -10%;
+  right: -10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(140, 190, 210, 0.12) 30%,
+    rgba(180, 220, 240, 0.2) 50%,
+    rgba(140, 190, 210, 0.12) 70%,
+    transparent 100%
+  );
+  z-index: 5;
+}
+
+/* Phase 1: glitch entrance */
+.sp-phase-1 .sp-title__line {
+  animation: titleGlitchIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.sp-phase-1 .sp-title__line:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+@keyframes titleGlitchIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px) skewX(-8deg);
+    filter: blur(8px) brightness(2);
+  }
+  15% {
+    opacity: 0.7;
+    transform: translateX(6px) skewX(2deg);
+    filter: blur(0px) brightness(1.5);
+  }
+  30% {
+    transform: translateX(-2px) skewX(-0.5deg);
+    filter: blur(0px) brightness(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(1px) skewX(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) skewX(0deg);
+    filter: blur(0px) brightness(1);
+  }
+}
+
+/* Phase 2: settled with subtle idle drift */
+.sp-phase-2 .sp-title__line::before {
+  animation: ghostDrift 8s ease-in-out infinite;
+}
+.sp-phase-2 .sp-title__line::after {
+  animation: ghostDrift 8s ease-in-out infinite reverse;
+  animation-delay: -4s;
+}
+
+@keyframes ghostDrift {
+  0%, 100% { transform: translate(-3px, 2px); }
+  25% { transform: translate(-4px, 1px); }
+  50% { transform: translate(-2px, 3px); }
+  75% { transform: translate(-3.5px, 1.5px); }
+}
+
+/* ─── Subtitle ────────────────────────────────────────── */
+.sp-sub {
+  font-size: clamp(13px, 1.6vw, 18px);
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin: 0 0 48px 0;
+  position: relative;
+  padding: 0 50px;
+}
+
+/* Decorative lines flanking subtitle */
+.sp-sub::before,
+.sp-sub::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 36px;
+  height: 1px;
+  background: rgba(140, 190, 210, 0.25);
+}
+.sp-sub::before { left: 0; }
+.sp-sub::after { right: 0; }
+
+.sp-phase-1 .sp-sub {
+  animation: fadeSlideUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+  opacity: 0;
+}
+
+@keyframes fadeSlideUp {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Buttons ─────────────────────────────────────────── */
+.sp-buttons {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.sp-phase-1 .sp-buttons {
+  animation: fadeSlideUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
+  opacity: 0;
+}
+
+.sp-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 200px;
+  padding: 18px 52px;
+  text-decoration: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.sp-btn__text {
+  position: relative;
+  z-index: 2;
+  font-family: 'TTMussels', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text);
+  transition: color 0.3s ease;
+}
+
+.sp-btn__border {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(140, 190, 210, 0.25);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hover: border brightens, inner glow */
+.sp-btn:hover .sp-btn__border {
+  border-color: rgba(180, 220, 240, 0.5);
+  box-shadow:
+    inset 0 0 30px rgba(140, 190, 210, 0.06),
+    0 0 20px rgba(140, 190, 210, 0.05);
+}
+
+.sp-btn:hover .sp-btn__text {
+  color: #e2f0f8;
+}
+
+/* Corner accents on button */
+.sp-btn::before,
+.sp-btn::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: rgba(140, 190, 210, 0.3);
+  border-style: solid;
+  transition: border-color 0.3s ease;
+  z-index: 3;
+}
+.sp-btn::before {
+  top: -1px; left: -1px;
+  border-width: 1px 0 0 1px;
+}
+.sp-btn::after {
+  bottom: -1px; right: -1px;
+  border-width: 0 1px 1px 0;
+}
+.sp-btn:hover::before,
+.sp-btn:hover::after {
+  border-color: rgba(180, 220, 240, 0.6);
+}
+
+/* Ghost variant */
+.sp-btn--ghost .sp-btn__border {
+  border-color: rgba(140, 190, 210, 0.12);
+}
+.sp-btn--ghost .sp-btn__text {
+  color: var(--text-dim);
+}
+.sp-btn--ghost:hover .sp-btn__text {
+  color: var(--text);
+}
+.sp-btn--ghost:hover .sp-btn__border {
+  border-color: rgba(140, 190, 210, 0.3);
+}
+
+/* ─── Responsive ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sp-title__line {
+    font-size: clamp(38px, 13vw, 65px);
+  }
+
+  .sp-sub {
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    margin-bottom: 36px;
+    padding: 0 40px;
+  }
+  .sp-sub::before,
+  .sp-sub::after {
+    width: 28px;
+  }
+
+  .sp-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .sp-btn {
+    min-width: 240px;
+    padding: 16px 40px;
+  }
+
+  .sp-hex--tl { width: 100px; height: 100px; }
+  .sp-hex--br { width: 130px; height: 130px; }
+}

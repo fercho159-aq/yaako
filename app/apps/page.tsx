@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useRef, useEffect, useCallback, Suspense } from "react";
+import React, { useMemo, useRef, useEffect, useCallback, useState, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import { EffectComposer, Noise } from "@react-three/postprocessing";
@@ -53,6 +53,9 @@ const noiseGLSL = `
   }
 `;
 
+// ─── Shared explosion state ──────────────────────────────────────
+const explosionState = { value: 0 };
+
 // ─── Terrain ──────────────────────────────────────────────────────
 function Terrain() {
   const pointsRef = useRef<THREE.Points>(null);
@@ -69,11 +72,13 @@ function Terrain() {
   const vertexShader = `
     uniform float uTime;
     uniform vec3 uMouse;
+    uniform float uExplosion;
     attribute float aRandom;
     varying float vElevation;
     varying float vMouseProximity;
     varying float vEdgeFade;
     varying float vDepth;
+    varying float vExplosion;
     ${noiseGLSL}
     void main(){
       vec3 pos = position;
@@ -117,12 +122,49 @@ function Terrain() {
       el += vertScatter;
       el += gravity * gravity * 1.2;
 
+      // ─── EXPLOSION ─────────────────────────────────────────
+      vExplosion = uExplosion;
+      if (uExplosion > 0.0) {
+        // Eased explosion curve (starts slow, accelerates violently)
+        float ex = uExplosion * uExplosion * uExplosion;
+        float ex2 = uExplosion * uExplosion;
+
+        // Each particle gets a unique explosion direction
+        float angle1 = seed * 2.7 + aRandom * 19.3;
+        float angle2 = seed * 4.1 + aRandom * 7.7;
+        vec3 explodeDir = normalize(vec3(
+          cos(angle1) * sin(angle2),
+          sin(angle1) * 0.6 + 0.4,
+          cos(angle2) * sin(angle1)
+        ));
+
+        // Radial burst from center + random scatter
+        float burstForce = 60.0 * ex * (0.3 + aRandom * 0.7);
+        mp.xyz += explodeDir * burstForce;
+
+        // Chaotic spin
+        float spinSpeed = uTime * (3.0 + aRandom * 8.0);
+        mp.x += sin(spinSpeed + seed) * ex2 * 8.0;
+        mp.z += cos(spinSpeed + seed * 1.3) * ex2 * 8.0;
+        mp.y += sin(spinSpeed * 0.7 + seed * 2.1) * ex2 * 12.0;
+
+        // Override elevation with upward surge
+        el += ex * 20.0 * (0.5 + aRandom);
+
+        // Disable edge fade during explosion
+        vEdgeFade = mix(vEdgeFade, 1.0, ex2);
+      }
+
       mp.y += el;
       vElevation = el;
       vDepth = -mp.z;
 
       vec4 vp = viewMatrix * mp;
-      gl_PointSize = 18.0 * (1.0 / -vp.z);
+
+      // Point size grows during explosion
+      float baseSize = 18.0 * (1.0 / -vp.z);
+      float explosionSize = baseSize * (1.0 + uExplosion * uExplosion * 6.0);
+      gl_PointSize = mix(baseSize, explosionSize, step(0.001, uExplosion));
       gl_Position = projectionMatrix * vp;
     }`;
 
@@ -131,11 +173,14 @@ function Terrain() {
     varying float vMouseProximity;
     varying float vEdgeFade;
     varying float vDepth;
+    varying float vExplosion;
     void main(){
-      if(vEdgeFade < 0.01) discard;
+      if(vEdgeFade < 0.01 && vExplosion < 0.01) discard;
 
       float d = distance(gl_PointCoord, vec2(0.5));
-      float alpha = 1.0 - smoothstep(0.25, 0.5, d);
+      // Softer particles during explosion
+      float softness = mix(0.5, 0.7, vExplosion);
+      float alpha = 1.0 - smoothstep(0.25, softness, d);
       if(alpha < 0.01) discard;
 
       // color based on elevation
@@ -160,13 +205,32 @@ function Terrain() {
       // mouse glow
       col = mix(col, vec3(0.9, 0.95, 1.0), vMouseProximity * 0.4);
 
+      // ─── EXPLOSION COLOR ───────────────────────────────────
+      if (vExplosion > 0.0) {
+        float ex = vExplosion * vExplosion;
+        // Shift to brilliant white-cyan
+        vec3 explosionColor = vec3(0.85, 0.95, 1.0);
+        col = mix(col, explosionColor, ex);
+        // Boost brightness dramatically
+        col += ex * 0.6;
+        // Override fog
+        fog = mix(fog, 1.0, ex);
+      }
+
       float a = alpha * vEdgeFade * fog * (0.7 + elNorm * 0.3);
+
+      // Boost alpha during explosion
+      if (vExplosion > 0.0) {
+        a = mix(a, alpha * 0.9, vExplosion * vExplosion);
+      }
+
       gl_FragColor = vec4(col, a);
     }`;
 
   const uniforms = useMemo(() => ({
     uTime: { value: 0 },
     uMouse: { value: new THREE.Vector3(0, -999, 0) },
+    uExplosion: { value: 0 },
   }), []);
 
   useFrame((state) => {
@@ -174,6 +238,7 @@ function Terrain() {
       const mat = pointsRef.current.material as THREE.ShaderMaterial;
       mat.uniforms.uTime.value = state.clock.getElapsedTime();
       mat.uniforms.uMouse.value.copy(mouseWorld);
+      mat.uniforms.uExplosion.value = explosionState.value;
     }
   });
 
@@ -195,22 +260,86 @@ function Terrain() {
   );
 }
 
+// ─── Explosion Animator ──────────────────────────────────────────
+function ExplosionAnimator({ trigger }: { trigger: boolean }) {
+  const startTime = useRef<number | null>(null);
+  const DURATION = 1.4; // seconds for the explosion ramp
+
+  useFrame((state) => {
+    if (trigger) {
+      if (startTime.current === null) {
+        startTime.current = state.clock.getElapsedTime();
+      }
+      const elapsed = state.clock.getElapsedTime() - startTime.current;
+      const progress = Math.min(elapsed / DURATION, 1.0);
+      explosionState.value = progress;
+    }
+  });
+
+  return null;
+}
+
 // ─── Main Page ──────────────────────────────────────────────────────
 export default function AppsPage() {
+  const [exploding, setExploding] = useState(false);
+  const [whiteout, setWhiteout] = useState(false);
+
+  useEffect(() => {
+    // Trigger explosion at 4 seconds
+    const explosionTimer = setTimeout(() => {
+      setExploding(true);
+    }, 4000);
+
+    // Start whiteout flash at 4.8 seconds
+    const whiteoutTimer = setTimeout(() => {
+      setWhiteout(true);
+    }, 4800);
+
+    // Navigate at 5.5 seconds
+    const navTimer = setTimeout(() => {
+      window.location.href = '/start';
+    }, 5500);
+
+    return () => {
+      clearTimeout(explosionTimer);
+      clearTimeout(whiteoutTimer);
+      clearTimeout(navTimer);
+    };
+  }, []);
+
   return (
-    <Canvas
-      dpr={[1, 2]}
-      gl={{ alpha: true, antialias: true }}
-      style={{ background: "#040a12", position: "fixed", top: 0, left: 0, width: "100%", height: "100%" }}
-    >
-      <PerspectiveCamera makeDefault position={[0, 2.5, 12]} fov={55} />
-      <MouseTracker />
-      <Suspense fallback={null}>
-        <Terrain />
-      </Suspense>
-      <EffectComposer enableNormalPass={false}>
-        <Noise opacity={0.03} blendFunction={BlendFunction.OVERLAY} />
-      </EffectComposer>
-    </Canvas>
+    <>
+      <Canvas
+        dpr={[1, 2]}
+        gl={{ alpha: true, antialias: true }}
+        style={{ background: "#040a12", position: "fixed", top: 0, left: 0, width: "100%", height: "100%" }}
+      >
+        <PerspectiveCamera makeDefault position={[0, 2.5, 12]} fov={55} />
+        <MouseTracker />
+        <ExplosionAnimator trigger={exploding} />
+        <Suspense fallback={null}>
+          <Terrain />
+        </Suspense>
+        <EffectComposer enableNormalPass={false}>
+          <Noise opacity={0.03} blendFunction={BlendFunction.OVERLAY} />
+        </EffectComposer>
+      </Canvas>
+
+      {/* Whiteout overlay */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 10,
+          pointerEvents: "none",
+          backgroundColor: "#a8b6bd",
+          opacity: whiteout ? 1 : 0,
+          transition: "opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      />
+    </>
   );
 }
