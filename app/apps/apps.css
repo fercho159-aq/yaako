@@ -1,0 +1,489 @@
+@font-face {
+  font-family: 'TTMussels';
+  src: url(/assets/fonts/ttmussels/TTMussels-Regular.ttf) format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'TTMussels';
+  src: url(/assets/fonts/ttmussels/TTMussels-Medium.ttf) format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'TTMussels';
+  src: url(/assets/fonts/ttmussels/TTMussels-DemiBold.ttf) format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'TTMussels';
+  src: url(/assets/fonts/ttmussels/TTMussels-Bold.ttf) format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.apps-page {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: transparent;
+  font-family: 'TTMussels', sans-serif;
+  z-index: 10;
+}
+
+/* Animated gradient background - removed, using Three.js canvas */
+.apps-bg {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.gradient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.2;
+  animation: float 20s infinite ease-in-out;
+}
+
+.orb-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, #e8a4b8 0%, transparent 70%);
+  top: -200px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #7c4dff 0%, transparent 70%);
+  top: 50%;
+  right: -150px;
+  animation-delay: -7s;
+}
+
+.orb-3 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #ffd700 0%, transparent 70%);
+  bottom: -100px;
+  left: 30%;
+  animation-delay: -14s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(50px, -30px) scale(1.1); }
+  50% { transform: translate(-30px, 50px) scale(0.9); }
+  75% { transform: translate(-50px, -20px) scale(1.05); }
+}
+
+/* Header */
+.apps-header {
+  position: relative;
+  z-index: 10;
+  padding: 2rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .apps-header {
+    padding: 1.5rem 1.5rem;
+  }
+}
+
+.back-link {
+  position: absolute;
+  top: 2rem;
+  left: 4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(200, 210, 220, 0.8);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .back-link {
+    left: 1.5rem;
+    top: 1.5rem;
+  }
+}
+
+.back-link svg {
+  width: 20px;
+  height: 20px;
+}
+
+.back-link:hover {
+  color: #ffffff;
+  transform: translateX(-5px);
+}
+
+.header-content {
+  text-align: center;
+  padding-top: 2rem;
+}
+
+.header-logo {
+  width: 100px;
+  height: auto;
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+  filter: invert(1);
+}
+
+@media (max-width: 768px) {
+  .header-logo {
+    width: 70px;
+  }
+}
+
+.apps-header h1 {
+  font-family: 'TTMussels', sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #e0e8ef;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .apps-header h1 {
+    font-size: 2rem;
+  }
+}
+
+.header-subtitle {
+  font-size: 1.1rem;
+  color: rgba(200, 210, 220, 0.6);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+  .header-subtitle {
+    font-size: 0.9rem;
+  }
+}
+
+/* Apps container */
+.apps-container {
+  position: relative;
+  z-index: 10;
+  padding: 3rem 4rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .apps-container {
+    padding: 2rem 1.5rem 3rem;
+    gap: 3rem;
+  }
+}
+
+/* App cards */
+.app-card {
+  position: relative;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-card:hover {
+  transform: translateY(-5px);
+}
+
+.app-card:hover .app-info {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+  border-color: rgba(200, 210, 220, 0.2);
+}
+
+.card-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+  align-items: center;
+}
+
+.card-content.reversed {
+  grid-template-columns: 1.2fr 1fr;
+}
+
+.card-content.reversed .mockup-container {
+  order: 2;
+}
+
+.card-content.reversed .app-info-tilt {
+  order: 1;
+}
+
+@media (max-width: 900px) {
+  .card-content,
+  .card-content.reversed {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2rem;
+  }
+
+  .card-content.reversed .mockup-container {
+    order: 1;
+  }
+
+  .card-content.reversed .app-info-tilt {
+    order: 2;
+  }
+}
+
+/* Mockup */
+.mockup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.app-mockup {
+  max-width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+  border-radius: 24px;
+  transition: transform 0.5s ease;
+}
+
+@media (max-width: 768px) {
+  .app-mockup {
+    max-height: 350px;
+  }
+}
+
+/* App info */
+.app-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem;
+  background: rgba(10, 5, 2, 0.75);
+  border: 1px solid rgba(200, 210, 220, 0.1);
+  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(200, 210, 220, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(200, 210, 220, 0.8);
+  letter-spacing: 0.05em;
+  width: fit-content;
+  margin-bottom: 1rem;
+}
+
+.badge-icon {
+  font-size: 1rem;
+}
+
+.app-title {
+  font-family: 'TTMussels', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #e0e8ef;
+  margin-bottom: 1rem;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 768px) {
+  .app-title {
+    font-size: 1.8rem;
+  }
+}
+
+.app-description {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(200, 210, 220, 0.7);
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .app-description {
+    font-size: 0.9rem;
+  }
+}
+
+.app-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+}
+
+@media (max-width: 600px) {
+  .app-features {
+    grid-template-columns: 1fr;
+  }
+}
+
+.app-features li {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 0.9rem;
+  color: rgba(200, 210, 220, 0.8);
+  padding: 0.5rem 0;
+}
+
+.feature-icon {
+  font-size: 1.2rem;
+}
+
+/* Download buttons */
+.download-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 500px) {
+  .download-buttons {
+    flex-direction: column;
+  }
+}
+
+.download-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.download-btn.app-store {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0a0a1a 100%);
+}
+
+.download-btn.app-store:hover {
+  background: linear-gradient(135deg, #2a2a4e 0%, #1a1a3a 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.download-btn.play-store {
+  background: linear-gradient(135deg, #1a2e1a 0%, #0a1a0a 100%);
+}
+
+.download-btn.play-store:hover {
+  background: linear-gradient(135deg, #2a4e2a 0%, #1a3a1a 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.download-btn svg {
+  width: 28px;
+  height: 28px;
+  color: #fff;
+}
+
+.btn-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.btn-text .small {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.03em;
+}
+
+.btn-text .large {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+/* Footer */
+.apps-footer {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 2rem;
+  color: rgba(200, 210, 220, 0.4);
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(20, 40, 60, 0.1);
+  margin-top: 2rem;
+}
+
+/* Audio button */
+.audio-btn {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 15px 30px;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: 'TTMussels', sans-serif;
+  background: #1e293b;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.audio-btn:hover {
+  background: #334155;
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
