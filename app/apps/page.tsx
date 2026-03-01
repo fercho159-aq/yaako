@@ -180,8 +180,8 @@ function Terrain() {
   return (
     <points ref={pointsRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -3, -8]} renderOrder={0}>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={positions.length / 3} array={positions} itemSize={3} />
-        <bufferAttribute attach="attributes-aRandom" count={randoms.length} array={randoms} itemSize={1} />
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-aRandom" args={[randoms, 1]} />
       </bufferGeometry>
       <shaderMaterial
         vertexShader={vertexShader}
@@ -208,7 +208,7 @@ export default function AppsPage() {
       <Suspense fallback={null}>
         <Terrain />
       </Suspense>
-      <EffectComposer disableNormalPass>
+      <EffectComposer enableNormalPass={false}>
         <Noise opacity={0.03} blendFunction={BlendFunction.OVERLAY} />
       </EffectComposer>
     </Canvas>
