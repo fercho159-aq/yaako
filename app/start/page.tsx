@@ -275,7 +275,7 @@ export default function StartPage() {
         <p className="sp-sub">BE FREE</p>
 
         <div className="sp-buttons">
-          <a href="#" className="sp-btn">
+          <a href="https://apps.apple.com/mx/app/yakoob/id6758861392" target="_blank" rel="noopener noreferrer" className="sp-btn">
             <span className="sp-btn__text">COMIENZA AHORA</span>
             <span className="sp-btn__border" />
           </a>
