@@ -123,11 +123,11 @@ function AttractorParticles() {
       float alpha = 1.0 - smoothstep(0.15, 0.5, d);
       if (alpha < 0.01) discard;
 
-      // Site palette: brighter range for more visible particles
-      vec3 cDeep  = vec3(0.08, 0.20, 0.30);   // brighter deep
-      vec3 cMid   = vec3(0.25, 0.55, 0.70);    // brighter mid
-      vec3 cBright= vec3(0.65, 0.85, 0.95);    // bright cyan
-      vec3 cWhite = vec3(0.92, 0.97, 1.0);     // near-white
+      // Monochrome palette
+      vec3 cDeep  = vec3(0.12, 0.12, 0.12);   // deep black
+      vec3 cMid   = vec3(0.35, 0.35, 0.35);    // mid gray
+      vec3 cBright= vec3(0.70, 0.70, 0.70);    // light gray
+      vec3 cWhite = vec3(0.95, 0.95, 0.95);    // near-white
 
       float t = clamp(vSpeed * 0.4, 0.0, 1.0);
       vec3 col;
@@ -243,7 +243,7 @@ export default function StartPage() {
           position: "absolute",
           inset: 0,
           zIndex: 0,
-          background: "#0a1820",
+          background: "#0a0a0a",
         }}
       >
         <PerspectiveCamera makeDefault position={[0, 2, 6]} fov={55} />
@@ -258,11 +258,11 @@ export default function StartPage() {
 
       {/* Corner hex accents */}
       <svg className="sp-hex sp-hex--tl" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M60 5 L110 30 L110 80 L60 105 L10 80 L10 30 Z" stroke="rgba(140,190,210,0.08)" strokeWidth="0.5"/>
-        <path d="M60 20 L95 38 L95 72 L60 90 L25 72 L25 38 Z" stroke="rgba(140,190,210,0.05)" strokeWidth="0.5"/>
+        <path d="M60 5 L110 30 L110 80 L60 105 L10 80 L10 30 Z" stroke="rgba(180,180,180,0.08)" strokeWidth="0.5"/>
+        <path d="M60 20 L95 38 L95 72 L60 90 L25 72 L25 38 Z" stroke="rgba(180,180,180,0.05)" strokeWidth="0.5"/>
       </svg>
       <svg className="sp-hex sp-hex--br" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M60 5 L110 30 L110 80 L60 105 L10 80 L10 30 Z" stroke="rgba(140,190,210,0.06)" strokeWidth="0.5"/>
+        <path d="M60 5 L110 30 L110 80 L60 105 L10 80 L10 30 Z" stroke="rgba(180,180,180,0.06)" strokeWidth="0.5"/>
       </svg>
 
       {/* Content */}

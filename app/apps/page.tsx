@@ -183,11 +183,11 @@ function Terrain() {
       float alpha = 1.0 - smoothstep(0.25, softness, d);
       if(alpha < 0.01) discard;
 
-      // color based on elevation
-      vec3 cDeep = vec3(0.06, 0.12, 0.16);
-      vec3 cMid = vec3(0.25, 0.42, 0.50);
-      vec3 cPeak = vec3(0.65, 0.80, 0.88);
-      vec3 cBright = vec3(0.85, 0.92, 0.96);
+      // monochrome elevation palette
+      vec3 cDeep = vec3(0.08, 0.08, 0.08);
+      vec3 cMid = vec3(0.30, 0.30, 0.30);
+      vec3 cPeak = vec3(0.65, 0.65, 0.65);
+      vec3 cBright = vec3(0.90, 0.90, 0.90);
 
       float elNorm = clamp((vElevation + 2.0) * 0.22, 0.0, 1.0);
       vec3 col;
@@ -203,13 +203,13 @@ function Terrain() {
       float fog = 1.0 - smoothstep(5.0, 50.0, vDepth) * 0.6;
 
       // mouse glow
-      col = mix(col, vec3(0.9, 0.95, 1.0), vMouseProximity * 0.4);
+      col = mix(col, vec3(0.95, 0.95, 0.95), vMouseProximity * 0.4);
 
       // ─── EXPLOSION COLOR ───────────────────────────────────
       if (vExplosion > 0.0) {
         float ex = vExplosion * vExplosion;
-        // Shift to brilliant white-cyan
-        vec3 explosionColor = vec3(0.85, 0.95, 1.0);
+        // Shift to brilliant white
+        vec3 explosionColor = vec3(0.95, 0.95, 0.95);
         col = mix(col, explosionColor, ex);
         // Boost brightness dramatically
         col += ex * 0.6;
@@ -312,7 +312,7 @@ export default function AppsPage() {
       <Canvas
         dpr={[1, 2]}
         gl={{ alpha: true, antialias: true }}
-        style={{ background: "#040a12", position: "fixed", top: 0, left: 0, width: "100%", height: "100%" }}
+        style={{ background: "#050505", position: "fixed", top: 0, left: 0, width: "100%", height: "100%" }}
       >
         <PerspectiveCamera makeDefault position={[0, 2.5, 12]} fov={55} />
         <MouseTracker />
@@ -335,7 +335,7 @@ export default function AppsPage() {
           height: "100%",
           zIndex: 10,
           pointerEvents: "none",
-          backgroundColor: "#a8b6bd",
+          backgroundColor: "#b0b0b0",
           opacity: whiteout ? 1 : 0,
           transition: "opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
         }}

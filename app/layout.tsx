@@ -30,8 +30,8 @@ export const metadata: Metadata = {
     images: "/logo.png",
   },
   other: {
-    "theme-color": "#651200",
-    "msapplication-TileColor": "#651200",
+    "theme-color": "#0a0a0a",
+    "msapplication-TileColor": "#0a0a0a",
   },
 };
 
